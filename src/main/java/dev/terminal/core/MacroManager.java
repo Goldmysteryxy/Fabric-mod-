@@ -79,7 +79,7 @@ public final class MacroManager {
             boolean d = Mc.keyDown(m.key);
             if (free && d && !DOWN.getOrDefault(m, false)) {
                 run(m);
-                if (mc.player != null) mc.player.displayClientMessage(Component.literal("Macro " + m.name + " ran"), true);
+                if (mc.player != null) Mc.overlay(Component.literal("Macro " + m.name + " ran"));
             }
             DOWN.put(m, d);
         }

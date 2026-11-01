@@ -6,13 +6,13 @@ import dev.terminal.gui.Gfx;
 import dev.terminal.util.Mc;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 import java.util.*;
 
 public final class ModuleManager {
     private static final List<Module> MODULES = new ArrayList<>();
     private static final Map<Module, Boolean> DOWN = new HashMap<>();
-    public static int guiKey = GLFW.GLFW_KEY_RIGHT_SHIFT;
+    public static int guiKey = InputConstants.KEY_RSHIFT;
     private static boolean guiDown;
     private static final Map<Module, int[]> BOUNDS = new HashMap<>();
     public static Map<Module, int[]> hudBounds() { return BOUNDS; }
@@ -48,7 +48,7 @@ public final class ModuleManager {
     }
 
     private static void pollKeys(Minecraft mc) {
-        boolean free = mc.screen == null;
+        boolean free = Mc.screen() == null;
         boolean g = Mc.keyDown(guiKey);
         if (free && g && !guiDown) Mc.openScreen(new ClickGuiScreen());
         guiDown = g;
@@ -57,8 +57,7 @@ public final class ModuleManager {
             boolean d = Mc.keyDown(m.keyCode());
             if (free && d && !DOWN.getOrDefault(m, false)) {
                 m.toggle();
-                if (!dev.terminal.module.Notifications.active()) mc.player.displayClientMessage(
-                        Component.literal(m.name + (m.isEnabled() ? " \u00a7aenabled" : " \u00a7cdisabled")), true);
+                if (!dev.terminal.module.Notifications.active()) Mc.overlay(Component.literal(m.name + (m.isEnabled() ? " \u00a7aenabled" : " \u00a7cdisabled")));
             }
             DOWN.put(m, d);
         }

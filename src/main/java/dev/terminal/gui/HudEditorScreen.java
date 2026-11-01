@@ -30,7 +30,7 @@ public class HudEditorScreen extends Screen {
         Gfx g = new Gfx(graphics);
         g.text("HUD Editor: drag elements, Esc to finish. (Enable a HUD module to see it here.)", 8, 8, 0xFFFFFFFF);
         if (dragging != null) {
-            if (!Mc.mouseDown(0)) { dragging = null; ConfigManager.save(); }
+            if (!Mc.leftMouseDown()) { dragging = null; ConfigManager.save(); }
             else move(dragging, mx, my);
         }
         for (Map.Entry<Module, int[]> e : ModuleManager.hudBounds().entrySet()) {
@@ -51,7 +51,7 @@ public class HudEditorScreen extends Screen {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (event.button() == 0) {
+        if (Mc.mouseButton(event.button()) == 0) {
             for (Map.Entry<Module, int[]> e : ModuleManager.hudBounds().entrySet()) {
                 int[] b = e.getValue();
                 if (!movable(e.getKey())) continue;

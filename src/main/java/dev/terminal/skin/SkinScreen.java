@@ -102,7 +102,7 @@ public class SkinScreen extends Screen {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (event.button() == 0) {
+        if (Mc.mouseButton(event.button()) == 0) {
             for (int i = hits.size() - 1; i >= 0; i--) {
                 Hit h = hits.get(i);
                 if (h.in(event.x(), event.y())) { h.action().run(); return true; }

@@ -14,7 +14,8 @@ import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.Minecraft;
 import java.util.*;
 
 /**
@@ -131,7 +132,7 @@ public class ClickGuiScreen extends Screen {
         int fill = th == null ? 0x803A6EA5 : (0x80 << 24) | (th.accent() & 0xFFFFFF);
 
         if (dragCat != null) {
-            if (!Mc.mouseDown(0)) { dragCat = null; ConfigManager.save(); }
+            if (!Mc.leftMouseDown()) { dragCat = null; ConfigManager.save(); }
             else GuiLayout.set(dragCat, Math.max(0, Math.min(mx - dragOffX, this.width - 30)), Math.max(0, Math.min(my - dragOffY, this.height - 60)));
         }
 
@@ -194,7 +195,7 @@ public class ClickGuiScreen extends Screen {
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         double mx = event.x(), my = event.y();
-        int b = event.button();
+        int b = Mc.mouseButton(event.button());
         for (int i = hits.size() - 1; i >= 0; i--) {
             Hit h = hits.get(i);
             if (h.in(mx, my)) { h.click().on(b, mx, h); ConfigManager.save(); return true; }
@@ -216,33 +217,37 @@ public class ClickGuiScreen extends Screen {
         return super.mouseScrolled(mx, my, sx, sy);
     }
 
+    private static boolean isEnter(int k) { return k == InputConstants.KEY_RETURN || k == InputConstants.KEY_NUMPADENTER; }
+
     @Override
     public boolean keyPressed(KeyEvent event) {
         int key = event.key();
+        boolean clear = key == InputConstants.KEY_BACKSPACE || key == InputConstants.KEY_DELETE;
         if (bindMacro != null) {
-            if (key != GLFW.GLFW_KEY_ESCAPE)
-                bindMacro.key = key == GLFW.GLFW_KEY_BACKSPACE || key == GLFW.GLFW_KEY_DELETE ? -1 : key;
+            if (key != InputConstants.KEY_ESCAPE) bindMacro.key = clear ? -1 : key;
             bindMacro = null;
             ConfigManager.save();
             return true;
         }
         if (bindTarget != null) {
-            if (key != GLFW.GLFW_KEY_ESCAPE)
-                bindTarget.setKeyCode(key == GLFW.GLFW_KEY_BACKSPACE || key == GLFW.GLFW_KEY_DELETE ? -1 : key);
+            if (key != InputConstants.KEY_ESCAPE) bindTarget.setKeyCode(clear ? -1 : key);
             bindTarget = null;
             ConfigManager.save();
             return true;
         }
-        switch (key) {
-            case GLFW.GLFW_KEY_ESCAPE -> { onClose(); return true; }
-            case GLFW.GLFW_KEY_ENTER, GLFW.GLFW_KEY_KP_ENTER -> { submit(); return true; }
-            case GLFW.GLFW_KEY_BACKSPACE -> { if (input.length() > 0) input.setLength(input.length() - 1); return true; }
-            case GLFW.GLFW_KEY_UP -> { history(-1); return true; }
-            case GLFW.GLFW_KEY_DOWN -> { history(1); return true; }
-            default -> {}
-        }
+        if (key == InputConstants.KEY_ESCAPE) { onClose(); return true; }
+        if (isEnter(key)) { submit(); return true; }
+        if (key == InputConstants.KEY_BACKSPACE) { if (input.length() > 0) input.setLength(input.length() - 1); return true; }
+        if (key == InputConstants.KEY_UP) { history(-1); return true; }
+        if (key == InputConstants.KEY_DOWN) { history(1); return true; }
         if (key == ModuleManager.guiKey && input.length() == 0) { onClose(); return true; }
         return super.keyPressed(event);
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        Minecraft.getInstance().onTextInputFocusChange(this, true); // SDL only sends typed text while this is on
     }
 
     @Override
@@ -274,6 +279,7 @@ public class ClickGuiScreen extends Screen {
 
     @Override
     public void onClose() {
+        Minecraft.getInstance().onTextInputFocusChange(this, false);
         ConfigManager.save();
         super.onClose();
     }
