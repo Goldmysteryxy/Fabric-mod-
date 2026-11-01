@@ -24,7 +24,7 @@ jobs:
       # Uses a pinned Gradle directly, so no gradle-wrapper.jar is needed in the repo.
       - uses: gradle/actions/setup-gradle@v5
         with:
-          gradle-version: '9.4.1'
+          gradle-version: '9.5.1'
 
       - name: Build
         run: gradle build --no-daemon --stacktrace
@@ -44,3 +44,4 @@ jobs:
           files: |
             build/libs/*.jar
             !build/libs/*-sources.jar
+
