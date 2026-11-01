@@ -1,7 +1,0 @@
-{
-  "required": true,
-  "package": "dev.terminal.mixin",
-  "compatibilityLevel": "JAVA_21",
-  "client": ["MinecraftMixin", "TitleScreenMixin"],
-  "injectors": { "defaultRequire": 1 }
-}
